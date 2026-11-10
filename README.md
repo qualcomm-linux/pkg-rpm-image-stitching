@@ -8,15 +8,16 @@ RPM packaging for the Qualcomm dynamic image-stitching library and its public
 development headers.
 
 This repository packages the `qcom-image-stitching` RPM from the
-`image-stitching` prebuilt binary release. The
-runtime package contains the versioned `libimage_stitching.so.1` shared
-library. The `qcom-image-stitching-devel` package contains the public
+`qcom-image-stitching` prebuilt binary release. The runtime package contains
+the versioned `libimage_stitching.so.1.0` shared library and its
+`libimage_stitching.so.1` soname symlink. The `qcom-image-stitching-devel` package contains the public
 `image_stitching.h` and `mesh_fusion.h` headers and the `libimage_stitching.so`
 linker symlink.
 
 The prebuilt archive is fetched during the RPM build from Qualcomm Software
 Center. This repository contains no compiled libraries, binaries, or source
-archives. The `iot-core-algs.lnx.0.0` component release dated `261029` is
+archives. The `iot-core-algs.lnx.0.0` component release dated `261110`
+(`prebuilt_rpm/qcom-image-stitching-<version>.el10.aarch64.tar.gz`) is
 referenced by `Source0` in the spec, and the checksum in `sources` is verified
 before the RPM is built.
 
@@ -36,7 +37,9 @@ before the RPM is built.
 ### `qcom-image-stitching`
 
 Runtime package containing the prebuilt image-stitching shared library
-`/usr/lib64/libimage_stitching.so.1`. The shared library uses
+`/usr/lib64/libimage_stitching.so.1.0` and the `libimage_stitching.so.1`
+soname symlink, plus the vendor `LICENSE.qcom-2` and `NOTICE` files. The
+shared library uses
 OpenCV and OpenCL runtime libraries supplied by the target Qualcomm Linux
 image; its ELF dependencies are recorded automatically by RPM.
 
@@ -124,13 +127,15 @@ root; they are not part of the package and can be deleted.
 1. Update `Version:` and `vendor_build_date` in `qcom-image-stitching.spec`, and
    update `Source0` if the Qualcomm Software Center artifact location changes.
    The archive filename must remain
-   `image-stitching_<version>_armv8a.tar.gz`.
+   `qcom-image-stitching-<version>.el10.aarch64.tar.gz` (built from the
+   `vendor_dist` and `vendor_arch` macros).
 2. Confirm that the staged archive still contains the files validated by the
-   `%prep` checks in the spec.
+   `%prep` checks in the spec. `%prep` also fails if `usr/VERSION` in the
+   archive does not match the spec `Version:`.
 3. Regenerate the source checksum:
 
    ```bash
-   sha512sum --tag image-stitching_<version>_armv8a.tar.gz > sources
+   sha512sum --tag qcom-image-stitching-<version>.el10.aarch64.tar.gz > sources
    ```
 
 4. Commit the spec and `sources`, then open a pull request against `c10s`.
@@ -143,4 +148,5 @@ This packaging repository is licensed under the BSD 3-Clause License. See
 `LICENSE.txt` for the complete license text.
 
 The vendor binary payload is distributed under Qualcomm's binary license. The
-`LICENSE.qcom-2` file from the vendor archive is included in the runtime RPM.
+`LICENSE.qcom-2` and `NOTICE` files from the vendor archive are included in the
+runtime RPM.
